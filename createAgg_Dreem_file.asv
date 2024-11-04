@@ -113,32 +113,29 @@ for acS = 1:height(hypoProcTable)
     tmpACELs = hypoProcTable.Accel_State{acS};
 
     if ~isstruct(tmpACELs)
-        hypoProcTable.RCPS_Accel{acS} = NaN;
+        hypoProcTable.RCPS_Accel{acI} = NaN;
         continue
     else
         tmpFnames = fieldnames(tmpACELs);
-        if matches('accelData',tmpFnames)
-            rawACC = tmpACELs.accelData;
+        if ~matches('accelData',tmpFnames)
+        rawACC = tmpACELs.accelData;
 
-            meanR = mean(rawACC);
-            stdR = std(rawACC);
+        meanR = mean(rawACC);
+        stdR = std(rawACC);
 
-            zNData = (rawACC - meanR) ./ stdR;
+        zNData = (rawACC - meanR) ./ stdR;
 
-            combTzn = sqrt(zNData(:,1).^2 +...
-                zNData(:,2).^2 +...
-                zNData(:,3).^2);
+        combTzn = sqrt(zNData(:,1).^2 +...
+            zNData(:,2).^2 +...
+            zNData(:,3).^2);
 
-            combTznSm = smoothdata(combTzn,'gaussian',20);
+        combTznSm = smoothdata(combTzn,'gaussian',50);
 
-            hypoProcTable.RCPS_Accel{acS} = combTznSm;
-        else
-            hypoProcTable.RCPS_Accel{acS} = NaN;
-        end
+        hypoProcTable.RCPS_Accel{acI} = combTznSm;
     end
 end
 
-hypoProcTable = removevars(hypoProcTable,"Accel_State");
+hypoProcTable = removevars(hypoProcTable,["Accel_State"]);
 
 dreemEEG_HPY_ACCEL = [hypoProcTable , dataEDF2];
 
