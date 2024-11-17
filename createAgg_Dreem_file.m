@@ -12,11 +12,11 @@ curSelName = edfName;
 % Locate and load proctable - extract StreamTime, Accel_State, Accel_XYZ
 matfileL1 = dir('*.mat');
 matfileL2 = {matfileL1.name};
-load(matfileL2{1},'FileMade');
+load(matfileL2{1});
 
-procTABV = FileMade(:,["Accel_State","StreamTime","Accel_X",...
+procTABV = CombinedProcTable(:,["Accel_State","StreamTime","Accel_X",...
     "Accel_Y","Accel_Z"]);
-clearvars("FileMade");
+clearvars("CombinedProcTable");
 
 % Locate and load hypnogram txt file
 hypnoTextN = [curSelName '_hypnogram.txt'];
@@ -188,7 +188,38 @@ edfINDEX(1:summit_startIdx) = 0;
 
 if height(hypnoTab2) ~= height(procTABV2) 
     % lots of troubleshooting on the horizon
-    keyboard
+    if height(hypnoTab2) > height(procTABV2)
+
+        edfINDEX = ones(height(hypnoTab),1);
+        interval = seconds(30);
+        lfpEPOCHs = height(procTABV2);
+
+        % Generate the vector of times
+        lfptVec = lfp_start + (0:lfpEPOCHs-1)' * interval;
+
+        hypEPOCHS = height(hypnoTab2);
+        hpytVec = dreem_start + (0:hypEPOCHS-1)' * interval;
+
+        ismember(hpytVec,lfptVec)
+
+        hpytVec.Format = 'yyyy-MM-dd HH:mm';
+        lfptVec.Format = 'yyyy-MM-dd HH:mm';
+
+        [~,minLOC] = min(abs(hpytVec - lfptVec(1)));
+
+        hpytVec2 = hpytVec(minLOC:end);
+
+        hypnoTab2 = hypnoTab2(minLOC:end,:);
+
+        
+        edfINDEX(1:minLOC) = 0;
+
+
+
+
+    else
+        keyboard
+    end
 end
 
 outTable = [procTABV2 , hypnoTab2];
