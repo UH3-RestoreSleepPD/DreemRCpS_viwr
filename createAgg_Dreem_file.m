@@ -218,7 +218,31 @@ if height(hypnoTab2) ~= height(procTABV2)
 
 
     else
-        keyboard
+        edfINDEX = ones(height(hypnoTab),1);
+        interval = seconds(30);
+        lfpEPOCHs = height(procTABV2);
+
+        % Generate the vector of times
+        lfptVec = lfp_start + (0:lfpEPOCHs-1)' * interval;
+
+        hypEPOCHS = height(hypnoTab2);
+        hpytVec = dreem_start + (0:hypEPOCHS-1)' * interval;
+
+        ismember(hpytVec,lfptVec)
+
+        hpytVec.Format = 'yyyy-MM-dd HH:mm:ss';
+        lfptVec.Format = 'yyyy-MM-dd HH:mm:ss';
+
+        [~,minLOC] = min(abs(lfptVec - hpytVec(1)));
+
+        minLOCa = minLOC - 1;
+
+        procTABV2 = procTABV2(minLOC:end,:);
+        hpytVec = hpytVec(1:end-1);
+        hypnoTab2 = hypnoTab2(1:end-1,:);
+        edfINDEX([1:minLOCa numel(edfINDEX)]) = 0;
+
+
     end
 end
 
